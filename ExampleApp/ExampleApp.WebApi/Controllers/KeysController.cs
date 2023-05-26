@@ -13,6 +13,7 @@ using System.Web.Http;
 
 namespace ExampleApp.WebApi.Controllers
 {
+    [RoutePrefix("api/keys")]
     public class KeysController : ApiController
     {
         public static List<Key> Keys { get; set; } = new List<Key>
@@ -32,6 +33,22 @@ namespace ExampleApp.WebApi.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, Keys);
 
         }
+        [HttpPost]
+        [Route("paginated")]
+        public HttpResponseMessage Post()
+        {
+            if (Keys == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound, "No Result");
+            }
+
+            List<Key> query = Keys.OrderBy(x => x.Id).Skip(2 * (2-1)).Take(2).ToList();
+            PaginatedResponseModel<List<Key>> result = new PaginatedResponseModel<List<Key>> { Results = query };
+
+            result.TotalResultCount = Keys.Count();
+            return Request.CreateResponse(HttpStatusCode.OK, result);
+
+        }
         // GET /api/keys/5
         public HttpResponseMessage Get(int id)
         {
@@ -49,6 +66,8 @@ namespace ExampleApp.WebApi.Controllers
         }
 
         // POST /api/keys
+        [HttpPost]
+        [Route("create")]
         public HttpResponseMessage Post([FromBody] KeyRequestModel request)
         {
 
@@ -76,12 +95,18 @@ namespace ExampleApp.WebApi.Controllers
             {
                 if (request.Name != query.Name)
                 {
-                    query.Name = request.Name;
+                    if (!string.IsNullOrEmpty(request.Name))
+                    {
+                        query.Name = request.Name;
+                    }
                 }
 
                 if (request.Owner != query.Owner)
                 {
-                    query.Owner = request.Owner;
+                    if (!string.IsNullOrEmpty(request.Owner))
+                    {
+                        query.Owner = request.Owner;
+                    }
                 }
 
                 return Request.CreateResponse(HttpStatusCode.NoContent);
