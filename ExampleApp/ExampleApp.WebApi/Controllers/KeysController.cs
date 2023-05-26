@@ -53,7 +53,7 @@ namespace ExampleApp.WebApi.Controllers
         {
 
             //mapping
-            Key key = new Key() { Id = request.Id, Name = request.Name };
+            Key key = new Key() { Id = request.Id, Name = request.Name, Owner = request.Owner };
             if (Keys == null)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest);
@@ -64,7 +64,7 @@ namespace ExampleApp.WebApi.Controllers
         }
 
         // PUT /api/keys/5
-        public HttpResponseMessage Put(int id, [FromBody] Key request)
+        public HttpResponseMessage Put(int id, [FromBody] KeyRequestModel request)
         {
             Key query = Keys.FirstOrDefault(k => k.Id == id);
 
