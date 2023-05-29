@@ -14,9 +14,5 @@ namespace ExampleApp.WebApi.Responses
         public int Pagesize { get; set; } = 10;
         public List<T> Results { get; set; }
 
-        public static implicit operator PaginatedResponseModel<T>(PaginatedResponseModel<List<Key>> v)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

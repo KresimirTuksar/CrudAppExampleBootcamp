@@ -33,22 +33,23 @@ namespace ExampleApp.WebApi.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, Keys);
 
         }
-        [HttpPost]
-        [Route("paginated")]
-        public HttpResponseMessage Post()
-        {
-            if (Keys == null)
-            {
-                return Request.CreateResponse(HttpStatusCode.NotFound, "No Result");
-            }
 
-            List<Key> query = Keys.OrderBy(x => x.Id).Skip(2 * (2-1)).Take(2).ToList();
-            PaginatedResponseModel<List<Key>> result = new PaginatedResponseModel<List<Key>> { Results = query };
+        //[HttpPost]
+        //[Route("paginated")]
+        //public HttpResponseMessage Post()
+        //{
+        //    if (Keys == null)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.NotFound, "No Result");
+        //    }
 
-            result.TotalResultCount = Keys.Count();
-            return Request.CreateResponse(HttpStatusCode.OK, result);
+        //    List<Key> query = Keys.OrderBy(x => x.Id).Skip(2 * (2-1)).Take(2).ToList();
+        //    PaginatedResponseModel<List<Key>> result = new PaginatedResponseModel<List<Key>> { Results = query };
 
-        }
+        //    result.TotalResultCount = Keys.Count();
+        //    return Request.CreateResponse(HttpStatusCode.OK, result);
+
+        //}
         // GET /api/keys/5
         public HttpResponseMessage Get(int id)
         {
