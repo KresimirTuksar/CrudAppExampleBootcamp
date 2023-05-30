@@ -1,0 +1,66 @@
+DROP TABLE IF EXISTS Users CASCADE;
+DROP TABLE IF EXISTS Ads CASCADE;
+DROP TABLE IF EXISTS FavoriteAds CASCADE;
+
+create table Users(
+	Id serial primary key,
+	FirstName varchar(50) not null,
+	LastName varchar(50) not null,
+	City varchar(50) not null,
+	Address varchar(50) not null,
+	Phone int not null,
+	Email varchar(200) not null
+);
+
+create table Ads(
+	Id serial primary key,
+	UserId int,
+    Content varchar not null,
+	CreatedAt date not null default current_date,
+	CONSTRAINT fk_user
+      FOREIGN key (UserId) 
+	  REFERENCES Users(Id)
+);
+
+create table FavoriteAds(
+	Id serial primary key,
+	UserId int,
+	AdId int,
+	CONSTRAINT FK_FavoriteAds_Users_UserId
+	  FOREIGN KEY(UserId) 
+	  REFERENCES Users(Id),
+	CONSTRAINT FK_FavoriteAds_Ads_AdId
+      FOREIGN KEY(AdId) 
+	  REFERENCES Ads(Id)
+);
+
+insert into Users ( FirstName, LastName, City, Address, Phone, Email)
+VALUES ('Pero', 'Perić', 'Osijek', 'Ulica 1', 031234321, 'pero@mail.com');
+
+insert into Ads (UserId, Content)
+VALUES ((select Id from Users where FirstName = 'Pero'), 'Lorem ipsum...');
+
+CREATE EXTENSION "uuid-ossp";
+
+alter table Ads drop constraint if exists fk_user;
+alter table FavoriteAds drop constraint if exists FK_FavoriteAds_Users_UserId;
+alter table FavoriteAds drop constraint if exists FK_FavoriteAds_Ads_AdId;
+
+alter table Users alter column Id set data type uuid using newid();
+alter table users drop column Id
+
+alter table users add column Id uuid;
+
+update users set Id=uuid_generate_v4();
+
+alter table users alter column Id set not null;
+
+alter table ads alter column Id set data type uuid using newid();
+alter table ads drop column Id;
+alter table ads add column Id uuid;
+update ads set Id=uuid_generate_v4();
+alter table ads alter column Id set not null;
+
+alter table ads drop column UserId;
+alter table ads add column UserId uuid;
+alter table ads alter column UserId set not null;
