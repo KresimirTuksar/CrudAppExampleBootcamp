@@ -1,44 +1,44 @@
-DROP TABLE IF EXISTS Users CASCADE;
-DROP TABLE IF EXISTS Ads CASCADE;
-DROP TABLE IF EXISTS FavoriteAds CASCADE;
+DROP TABLE IF EXISTS "Users" CASCADE;
+DROP TABLE IF EXISTS "Ads" CASCADE;
+DROP TABLE IF EXISTS "FavoriteAds" CASCADE;
 
-create table Users(
-	Id serial primary key,
-	FirstName varchar(50) not null,
-	LastName varchar(50) not null,
-	City varchar(50) not null,
-	Address varchar(50) not null,
-	Phone int not null,
-	Email varchar(200) not null
+create table "Users"(
+	"Id" uuid primary key,
+	"FirstName" varchar(50) not null,
+	"LastName" varchar(50) not null,
+	"City" varchar(50) not null,
+	"Address" varchar(50) not null,
+	"Phone" int not null,
+	"Email" varchar(200) not null
 );
 
-create table Ads(
-	Id serial primary key,
-	UserId int,
-    Content varchar not null,
-	CreatedAt date not null default current_date,
-	CONSTRAINT fk_user
-      FOREIGN key (UserId) 
-	  REFERENCES Users(Id)
+create table "Ads"(
+	"Id" uuid primary key not null,
+	"UserId" uuid not null,
+    "Content" varchar not null,
+	"CreatedAt" date not null default current_date,
+	CONSTRAINT FK_Ads_User
+      FOREIGN key ("UserId") 
+	  REFERENCES "Users"("Id")
 );
 
-create table FavoriteAds(
-	Id serial primary key,
-	UserId int,
-	AdId int,
+create table "FavoriteAds"(
+	"Id" serial primary key,
+	"UserId" uuid not null,
+	"AdId" uuid not null,
 	CONSTRAINT FK_FavoriteAds_Users_UserId
-	  FOREIGN KEY(UserId) 
-	  REFERENCES Users(Id),
+	  FOREIGN KEY("UserId") 
+	  REFERENCES "Users"("Id"),
 	CONSTRAINT FK_FavoriteAds_Ads_AdId
-      FOREIGN KEY(AdId) 
-	  REFERENCES Ads(Id)
+      FOREIGN KEY("AdId") 
+	  REFERENCES "Ads"("Id")
 );
 
-insert into Users ( FirstName, LastName, City, Address, Phone, Email)
-VALUES ('Pero', 'Perić', 'Osijek', 'Ulica 1', 031234321, 'pero@mail.com');
+insert into "Users" ("Id", "FirstName", "LastName", "City", "Address", "Phone", "Email")
+VALUES ((uuid_generate_v4()), 'Pero', 'Perić', 'Osijek', 'Ulica 1', 031234321, 'pero@mail.com');
 
-insert into Ads (UserId, Content)
-VALUES ((select Id from Users where FirstName = 'Pero'), 'Lorem ipsum...');
+insert into "Ads" ("Id", "UserId", "Content")
+VALUES ((uuid_generate_v4()),(select "Id" from "Users" where "FirstName" = 'Pero'), 'Lorem ipsum...');
 
 CREATE EXTENSION "uuid-ossp";
 
