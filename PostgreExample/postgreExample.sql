@@ -64,3 +64,5 @@ alter table ads alter column Id set not null;
 alter table ads drop column UserId;
 alter table ads add column UserId uuid;
 alter table ads alter column UserId set not null;
+
+alter table "Ads" add column "UpdatedAt" timestamp ;
