@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace ExampleApp.WebApi.Requests.Advertisement
+﻿namespace ExampleApp.WebApi.Requests.Advertisement
 {
     public class UserRequestModel
     {
@@ -12,6 +7,6 @@ namespace ExampleApp.WebApi.Requests.Advertisement
         public string Email { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
-        public int Phone { get; set; } 
+        public int Phone { get; set; }
     }
 }
