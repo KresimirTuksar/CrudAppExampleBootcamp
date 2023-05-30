@@ -1,6 +1,5 @@
 ﻿using ExampleApp.WebApi.Requests.Advertisement;
 using ExampleApp.WebApi.Responses;
-using ExampleApp.WebApi.Responses.Advertisement;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -9,17 +8,18 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace ExampleApp.WebApi.Controllers.Advertisement
+namespace ExampleApp.WebApi.Controllers
 {
-    public class AdvertisementController : ApiController
+    public class UserController : ApiController
     {
 
         public static string connectionString = "Server=localhost;Port=5432;User Id=postgres;Password=FapMash1na;Database=Advertisement;";
 
-        // GET: api/Advertisement
+
+
         public HttpResponseMessage Get()
         {
-            List<AdResponseModel> result = new List<AdResponseModel>();
+            List<UserResponseModel> result = new List<UserResponseModel>();
 
             try
             {
@@ -29,19 +29,21 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                     NpgsqlCommand cmd = new NpgsqlCommand();
 
                     cmd.Connection = conn;
-                    cmd.CommandText = $"SELECT * FROM \"Ads\"";
+                    cmd.CommandText = $"SELECT * FROM \"Users\"";
                     NpgsqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
-                        result.Add(new AdResponseModel()
+                        result.Add(new UserResponseModel()
                         {
                             Id = reader["Id"].ToString(),
-                            UserId = reader["UserId"].ToString(),
-                            Content = reader["Content"].ToString(),
-                            CreatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("CreatedAt")),
-                            UpdatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("UpdatedAt"))
-                        }); 
+                            FirstName = reader["FirstName"].ToString(),
+                            LastName = reader["LastName"].ToString(),
+                            City = reader["City"].ToString(),
+                            Address = reader["Address"].ToString(),
+                            Phone = reader["Phone"].ToString(),
+                            Email = reader["Email"].ToString(),
+                        });
                     }
                     if (result.Count() == 0)
                     {
@@ -60,7 +62,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
         public HttpResponseMessage Get(Guid id)
         {
-            List<AdResponseModel> result = new List<AdResponseModel>();
+            List<UserResponseModel> result = new List<UserResponseModel>();
             try
             {
                 using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
@@ -69,20 +71,23 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                     NpgsqlCommand cmd = new NpgsqlCommand();
 
                     cmd.Connection = conn;
-                    cmd.CommandText = "SELECT * FROM \"Ads\" WHERE \"Id\" = @adGuid";
+                    cmd.CommandText = "SELECT * FROM \"Users\" WHERE \"Id\" = @userGuid";
 
-                    cmd.Parameters.AddWithValue("adGuid", id);
+                    cmd.Parameters.AddWithValue("userGuid", id);
 
                     NpgsqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
-                        result.Add(new AdResponseModel()
+                        result.Add(new UserResponseModel()
                         {
                             Id = reader["Id"].ToString(),
-                            UserId = reader["UserId"].ToString(),
-                            Content = reader["Content"].ToString(),
-                            CreatedAt =reader.GetFieldValue<DateTime>(reader.GetOrdinal("CreatedAt"))
+                            FirstName = reader["FirstName"].ToString(),
+                            LastName = reader["LastName"].ToString(),
+                            City = reader["City"].ToString(),
+                            Address = reader["Address"].ToString(),
+                            Phone = reader["Phone"].ToString(),
+                            Email = reader["Email"].ToString(),
                         });
                     }
                     if (result.Count() == 0)
@@ -101,9 +106,9 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             }
         }
 
-        public HttpResponseMessage Post([FromBody] AdRequestModel request)
+        public HttpResponseMessage Post([FromBody] UserRequestModel request)
         {
-            Guid adGuid = Guid.NewGuid();
+            Guid userGuid = Guid.NewGuid();
 
             try
             {
@@ -113,13 +118,16 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                     NpgsqlCommand cmd = new NpgsqlCommand();
 
                     cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO \"Ads\" ( \"Id\", \"UserId\", \"Content\")" +
-                                                    "VALUES( @adGuid, @UserId, @Content);";
+                    cmd.CommandText = "INSERT INTO \"Users\" ( \"Id\", \"FirstName\", \"LastName\", \"City\", \"Address\", \"Phone\", \"Email\")" +
+                                                    "VALUES( @userGuid, @FirstName, @Lastname, @City, @Address, @Phone, @Email);";
 
-                    cmd.Parameters.AddWithValue("adGuid", adGuid);
-                    cmd.Parameters.AddWithValue("userId", request.UserId);
-                    cmd.Parameters.AddWithValue("content", request.Content);
-                    
+                    cmd.Parameters.AddWithValue("userGuid", userGuid);
+                    cmd.Parameters.AddWithValue("FirstName", request.Firstname);
+                    cmd.Parameters.AddWithValue("Lastname", request.Lastname);
+                    cmd.Parameters.AddWithValue("City", request.City);
+                    cmd.Parameters.AddWithValue("Address", request.Address);
+                    cmd.Parameters.AddWithValue("Email", request.Email);
+                    cmd.Parameters.AddWithValue("Phone", request.Phone);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -136,14 +144,12 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
                 throw e;
             }
-
         }
 
-        public HttpResponseMessage Put(Guid id, [FromBody] AdRequestModel request)
+        public HttpResponseMessage Put(Guid id, [FromBody] UserRequestModel request)
         {
 
-            AdResponseModel ad;
-            DateTime now = DateTime.Now;
+            UserResponseModel user;
 
             try
             {
@@ -154,24 +160,33 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                     using (NpgsqlCommand selectCmd = new NpgsqlCommand())
                     {
                         selectCmd.Connection = conn;
-                        selectCmd.CommandText = "SELECT * FROM \"Ads\" WHERE \"Id\" = @adGuid";
+                        selectCmd.CommandText = "SELECT * FROM \"Users\" WHERE \"Id\" = @userGuid";
 
-                        selectCmd.Parameters.AddWithValue("adGuid", id);
+                        selectCmd.Parameters.AddWithValue("userGuid", id);
 
 
                         using (NpgsqlDataReader reader = selectCmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
-                                ad = new AdResponseModel()
+                                user = new UserResponseModel()
                                 {
                                     Id = reader["Id"].ToString(),
-                                    UserId = reader["UserId"].ToString(),
-                                    Content = reader["Content"].ToString(),
+                                    FirstName = reader["FirstName"].ToString(),
+                                    LastName = reader["LastName"].ToString(),
+                                    City = reader["City"].ToString(),
+                                    Address = reader["Address"].ToString(),
+                                    Phone = reader["Phone"].ToString(),
+                                    Email = reader["Email"].ToString(),
                                 };
 
 
-                                if (ad.Content != request.Content)
+                                if (user.FirstName != request.Firstname ||
+                                    user.LastName != request.Lastname ||
+                                    user.City != request.City ||
+                                    user.Address != request.Address ||
+                                    user.Email != request.Email ||
+                                    user.Phone != request.Phone.ToString())
                                 {
                                     reader.Close();
 
@@ -179,12 +194,15 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                                     {
                                         updateCmd.Connection = conn;
 
-                                        updateCmd.CommandText = "UPDATE \"Ads\" SET \"Content\" = @content, \"UpdatedAt\" = @updatedAt WHERE \"Id\" = @adGuid";
+                                        updateCmd.CommandText = "UPDATE \"Users\" SET \"FirstName\" = @firstName, \"LastName\" = @lastname, \"City\" = @city, \"Address\" = @address, \"Phone\" = @phone, \"Email\" = @email WHERE \"Id\" = @userGuid";
 
-                                        updateCmd.Parameters.AddWithValue("adGuid", id);
-                                        updateCmd.Parameters.AddWithValue("content", request.Content);
-                                        updateCmd.Parameters.AddWithValue("updatedAt", now);
-
+                                        updateCmd.Parameters.AddWithValue("userGuid", id);
+                                        updateCmd.Parameters.AddWithValue("firstName", request.Firstname);
+                                        updateCmd.Parameters.AddWithValue("lastname", request.Lastname);
+                                        updateCmd.Parameters.AddWithValue("city", request.City);
+                                        updateCmd.Parameters.AddWithValue("address", request.Address);
+                                        updateCmd.Parameters.AddWithValue("email", request.Email);
+                                        updateCmd.Parameters.AddWithValue("phone", request.Phone);
 
                                         int rowsAffected = updateCmd.ExecuteNonQuery();
 
@@ -202,7 +220,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                                     return Request.CreateResponse(HttpStatusCode.NoContent, "Nothing to do");
                                 }
                             }
-                            return Request.CreateResponse(HttpStatusCode.NotFound, "Ad Not Found");
+                            return Request.CreateResponse(HttpStatusCode.NotFound, "User Not Found");
 
                         }
                     }
@@ -227,9 +245,9 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
                     command.Connection = conn;
 
-                    command.CommandText = "DELETE FROM \"Ads\" WHERE \"Id\" = @adId";
+                    command.CommandText = "DELETE FROM \"Users\" WHERE \"Id\" = @entryId";
 
-                    command.Parameters.AddWithValue("adId", id);
+                    command.Parameters.AddWithValue("entryId", id);
 
                     int rowsAffected = command.ExecuteNonQuery();
 
@@ -238,7 +256,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                         return Request.CreateResponse(HttpStatusCode.NoContent, "Deleted");
                     }
 
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "Ad Not Found");
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "User Not Found");
                 }
             }
             catch (Exception e)
