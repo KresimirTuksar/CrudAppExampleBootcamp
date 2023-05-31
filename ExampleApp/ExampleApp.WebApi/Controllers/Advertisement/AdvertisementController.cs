@@ -132,16 +132,16 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                         }
                         using (NpgsqlCommand createAdCmd = new NpgsqlCommand())
                         {
-                            queryBuilder.Append("with new_ad as ( insert into \"Ads\"(\"Id\", \"UserId\", \"Content\") values (@adGuid, @UserId, @Content) returning \"Id\")");
-                            for (int i = 0; i < categoriesIds.Count()-1; i++)
-                            {
-                                queryBuilder.Append($",new_adCategory{i} as ( INSERT INTO \"AdCategory\" (\"Id\", \"AdId\", \"CategoryId\" ) values  ({Guid.NewGuid()} (select \"Id\" from new_ad), {categoriesIds[i]}))");
-                            }
+                            //queryBuilder.Append("with new_ad as ( insert into \"Ads\"(\"Id\", \"UserId\", \"Content\") values (@adGuid, @UserId, @Content) returning \"Id\")");
+                            //for (int i = 0; i < categoriesIds.Count()-1; i++)
+                            //{
+                            //    queryBuilder.Append($",new_adCategory{i} as ( INSERT INTO \"AdCategory\" (\"Id\", \"AdId\", \"CategoryId\" ) values  ({Guid.NewGuid()} (select \"Id\" from new_ad), {categoriesIds[i]}))");
+                            //}
 
                             createAdCmd.Connection = conn;
                             createAdCmd.CommandText = queryBuilder.ToString();
-                            //createAdCmd.CommandText = "INSERT INTO \"Ads\" ( \"Id\", \"UserId\", \"Content\")" +
-                            //                                "VALUES( @adGuid, @UserId, @Content);";
+                            createAdCmd.CommandText = "INSERT INTO \"Ads\" ( \"Id\", \"UserId\", \"Content\")" +
+                                                            "VALUES( @adGuid, @UserId, @Content);";
 
                             createAdCmd.Parameters.AddWithValue("adGuid", adGuid);
                             createAdCmd.Parameters.AddWithValue("userId", request.UserId);
@@ -187,49 +187,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                             };
 
                         };
-
-                        //using (NpgsqlCommand createAdCmd = new NpgsqlCommand())
-                        //{
-                        //    createAdCmd.Connection = conn;
-                        //    createAdCmd.CommandText = "INSERT INTO \"Ads\" ( \"Id\", \"UserId\", \"Content\")" +
-                        //                                    "VALUES( @adGuid, @UserId, @Content);";
-
-                        //    createAdCmd.Parameters.AddWithValue("adGuid", adGuid);
-                        //    createAdCmd.Parameters.AddWithValue("userId", request.UserId);
-                        //    createAdCmd.Parameters.AddWithValue("content", request.Content);
-
-
-                        //    int rowsAffected = createAdCmd.ExecuteNonQuery();
-
-                        //    if (rowsAffected > 0)
-                        //    {
-                        //        return Request.CreateResponse(HttpStatusCode.OK, "OK");
-                        //    }
-                        //    return Request.CreateResponse(HttpStatusCode.ExpectationFailed, "Failed to insert Ad");
-                        //};
-
-
                     }
-                    //conn.Open();
-                    //NpgsqlCommand cmd = new NpgsqlCommand();
-
-                    //cmd.Connection = conn;
-                    //cmd.CommandText = "INSERT INTO \"Ads\" ( \"Id\", \"UserId\", \"Content\")" +
-                    //                                "VALUES( @adGuid, @UserId, @Content);";
-
-                    //cmd.Parameters.AddWithValue("adGuid", adGuid);
-                    //cmd.Parameters.AddWithValue("userId", request.UserId);
-                    //cmd.Parameters.AddWithValue("content", request.Content);
-
-
-                    //int rowsAffected = cmd.ExecuteNonQuery();
-
-                    //if (rowsAffected > 0)
-                    //{
-                    //    return Request.CreateResponse(HttpStatusCode.OK, "OK");
-                    //}
-                    //return Request.CreateResponse(HttpStatusCode.ExpectationFailed, "Failed to insert User");
-
                 }
             }
             catch (Exception e)
@@ -240,7 +198,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
         }
 
-        public HttpResponseMessage Put(Guid id, [FromBody] AdRequestModel request)
+        public HttpResponseMessage Put(Guid id, AdRequestModel request)
         {
 
             AdResponseModel ad;
