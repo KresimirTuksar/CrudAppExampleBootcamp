@@ -215,6 +215,7 @@
     <Compile Include="Requests\Advertisement\AdRequestModel.cs" />
     <Compile Include="Requests\Advertisement\UserRequestModel.cs" />
     <Compile Include="Requests\KeyRequestModel.cs" />
+    <Compile Include="Responses\Advertisement\AdJoinedResponseModel.cs" />
     <Compile Include="Responses\Advertisement\AdResponseModel.cs" />
     <Compile Include="Responses\KeyResponseModel.cs" />
     <Compile Include="Responses\PaginatedResponseModel.cs" />

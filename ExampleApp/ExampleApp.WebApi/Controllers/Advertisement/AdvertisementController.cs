@@ -9,16 +9,23 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web.Http;
+using System.Xml.Linq;
 
 namespace ExampleApp.WebApi.Controllers.Advertisement
 {
+    [RoutePrefix("api/advertisement")]
+
     public class AdvertisementController : ApiController
     {
 
         public static string connectionString = "Server=localhost;Port=5432;User Id=postgres;Password=FapMash1na;Database=Advertisement;";
 
         // GET: api/Advertisement
+        [HttpGet]
+        [Route("getall")]
+
         public HttpResponseMessage Get()
         {
             List<AdResponseModel> result = new List<AdResponseModel>();
@@ -42,7 +49,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                             UserId = reader["UserId"].ToString(),
                             Content = reader["Content"].ToString(),
                             CreatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("CreatedAt")),
-                            UpdatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("UpdatedAt"))
+                            //UpdatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("UpdatedAt")) //needs fixing. cant parse null
                         });
                     }
                     if (result.Count() == 0)
@@ -59,6 +66,57 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                 throw e;
             }
         }
+
+        [HttpGet]
+        [Route("getjoined")]
+
+        public HttpResponseMessage GetJoined()
+        {
+            List<AdJoinedResponseModel> result = new List<AdJoinedResponseModel>();
+
+            try
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
+                {
+                    conn.Open();
+                    NpgsqlCommand cmd = new NpgsqlCommand();
+
+                    cmd.Connection = conn;
+                    //cmd.CommandText = $"SELECT * FROM \"Ads\"";
+                    cmd.CommandText = "SELECT \"Ads.Id\", \"Ads.Content\", \"Category.Name\" " +
+                                    "FROM \"Ads\" " +
+                                    "INNER JOIN \"AdCategory\" ON \"AdCategory.AdId\" = \"Ads.Id\" " +
+                                    "INNER JOIN \"Category\" ON \"AdCategory.CategoryId\" = \"Category.Id\" ";
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        result.Add(new AdJoinedResponseModel()
+                        {
+                            Id = reader["Id"].ToString(),
+                            Content = reader["Content"].ToString(),
+                            Category= reader["Category"].ToString(),
+                        });
+                    }
+                    if (result.Count() == 0)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
+
+                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+        }
+
+
+
+        [HttpGet]
+        [Route("getbyid")]
 
         public HttpResponseMessage Get(Guid id)
         {
@@ -85,6 +143,8 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                             UserId = reader["UserId"].ToString(),
                             Content = reader["Content"].ToString(),
                             CreatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("CreatedAt"))
+                            //UpdatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("UpdatedAt")) //needs fixing. cant parse null
+
                         });
                     }
                     if (result.Count() == 0)
@@ -103,6 +163,9 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             }
         }
 
+
+        [HttpPost]
+        [Route("create")]
         public HttpResponseMessage Post(AdRequestModel request)
         {
             Guid adGuid = Guid.NewGuid();
@@ -198,6 +261,8 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
         }
 
+        [HttpPut]
+        [Route("edit")]
         public HttpResponseMessage Put(Guid id, AdRequestModel request)
         {
 
@@ -274,6 +339,8 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             }
         }
 
+        [HttpDelete]
+        [Route("delete")]
         public HttpResponseMessage Delete(Guid id)
         {
             try
