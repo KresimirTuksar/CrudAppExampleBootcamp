@@ -9,5 +9,6 @@ namespace ExampleApp.WebApi.Requests.Advertisement
     {
         public Guid UserId { get; set; }
         public string Content { get; set; }
+        public List<string> Categories { get; set; }
     }
 }

@@ -66,3 +66,33 @@ alter table ads add column UserId uuid;
 alter table ads alter column UserId set not null;
 
 alter table "Ads" add column "UpdatedAt" timestamp ;
+
+create table "Category"(
+	"Id" serial primary key,
+	"Name" varchar(50) not null,
+	"Description" varchar(50) not null
+);
+
+create table "AdCategory"(
+	"Id" uuid primary key not null ,
+	"AdId" uuid not null,
+	"CategoryId" int not null,
+	CONSTRAINT FK_AdCategory_Ads_AdId
+      FOREIGN KEY("AdId") 
+	  REFERENCES "Ads"("Id"),
+	CONSTRAINT FK_AdCategory_Category_AdId
+      FOREIGN KEY("CategoryId") 
+	  REFERENCES "Category"("Id")
+);
+
+insert into "Category"  ("Name", "Description")
+VALUES ('Living', 'Living category');
+
+with new_ad as (
+  insert into "Ads"("Id", "UserId", "Content")
+  values ((uuid_generate_v4()),(select "Id" from "Users" where "FirstName" = 'Pero'), 'Lorem ipsum...')
+  returning "Id"
+)
+insert into "AdCategory" ("Id", "AdId", "CategoryId")
+select (uuid_generate_v4()), "Id", 1
+from new_ad;
