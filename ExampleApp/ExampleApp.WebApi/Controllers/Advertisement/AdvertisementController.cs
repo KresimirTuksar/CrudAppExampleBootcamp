@@ -4,9 +4,11 @@ using ExampleApp.WebApi.Responses.Advertisement;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Web.Http;
 
 namespace ExampleApp.WebApi.Controllers.Advertisement
@@ -41,7 +43,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                             Content = reader["Content"].ToString(),
                             CreatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("CreatedAt")),
                             UpdatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("UpdatedAt"))
-                        }); 
+                        });
                     }
                     if (result.Count() == 0)
                     {
@@ -82,7 +84,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                             Id = reader["Id"].ToString(),
                             UserId = reader["UserId"].ToString(),
                             Content = reader["Content"].ToString(),
-                            CreatedAt =reader.GetFieldValue<DateTime>(reader.GetOrdinal("CreatedAt"))
+                            CreatedAt = reader.GetFieldValue<DateTime>(reader.GetOrdinal("CreatedAt"))
                         });
                     }
                     if (result.Count() == 0)
@@ -101,34 +103,91 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             }
         }
 
-        public HttpResponseMessage Post([FromBody] AdRequestModel request)
+        public HttpResponseMessage Post(AdRequestModel request)
         {
             Guid adGuid = Guid.NewGuid();
-
+            List<int> categoriesIds = new List<int>();
+            StringBuilder queryBuilder = new StringBuilder("");
             try
             {
                 using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
                 {
                     conn.Open();
-                    NpgsqlCommand cmd = new NpgsqlCommand();
-
-                    cmd.Connection = conn;
-                    cmd.CommandText = "INSERT INTO \"Ads\" ( \"Id\", \"UserId\", \"Content\")" +
-                                                    "VALUES( @adGuid, @UserId, @Content);";
-
-                    cmd.Parameters.AddWithValue("adGuid", adGuid);
-                    cmd.Parameters.AddWithValue("userId", request.UserId);
-                    cmd.Parameters.AddWithValue("content", request.Content);
-                    
-
-                    int rowsAffected = cmd.ExecuteNonQuery();
-
-                    if (rowsAffected > 0)
+                    using (NpgsqlCommand selectCatCmd = new NpgsqlCommand())
                     {
-                        return Request.CreateResponse(HttpStatusCode.OK, "OK");
-                    }
-                    return Request.CreateResponse(HttpStatusCode.ExpectationFailed, "Failed to insert User");
+                        foreach (var cat in request.Categories)
+                        {
+                            selectCatCmd.Connection = conn;
+                            selectCatCmd.CommandText = "SELECT \"Id\" FROM \"Category\" WHERE \"Name\" = @category";
+                            selectCatCmd.Parameters.AddWithValue("category", cat);
 
+                            using (NpgsqlDataReader reader = selectCatCmd.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    categoriesIds.Add(reader.GetInt32(0));
+                                }
+                                reader.Close();
+                            }
+                        }
+                        using (NpgsqlCommand createAdCmd = new NpgsqlCommand())
+                        {
+                            //queryBuilder.Append("with new_ad as ( insert into \"Ads\"(\"Id\", \"UserId\", \"Content\") values (@adGuid, @UserId, @Content) returning \"Id\")");
+                            //for (int i = 0; i < categoriesIds.Count()-1; i++)
+                            //{
+                            //    queryBuilder.Append($",new_adCategory{i} as ( INSERT INTO \"AdCategory\" (\"Id\", \"AdId\", \"CategoryId\" ) values  ({Guid.NewGuid()} (select \"Id\" from new_ad), {categoriesIds[i]}))");
+                            //}
+
+                            createAdCmd.Connection = conn;
+                            createAdCmd.CommandText = queryBuilder.ToString();
+                            createAdCmd.CommandText = "INSERT INTO \"Ads\" ( \"Id\", \"UserId\", \"Content\")" +
+                                                            "VALUES( @adGuid, @UserId, @Content);";
+
+                            createAdCmd.Parameters.AddWithValue("adGuid", adGuid);
+                            createAdCmd.Parameters.AddWithValue("userId", request.UserId);
+                            createAdCmd.Parameters.AddWithValue("content", request.Content);
+
+
+
+                            int adsRowsAffected = createAdCmd.ExecuteNonQuery();
+
+                            using (NpgsqlCommand createAdCategoryCmd = new NpgsqlCommand())
+                            {
+                                int categoryRowsAffected = 0;
+                                createAdCategoryCmd.Connection = conn;
+                                foreach (var catId in categoriesIds)
+                                {
+                                    Guid adCategoryGuid = Guid.NewGuid();
+                                    createAdCategoryCmd.CommandText = "INSERT INTO \"AdCategory\" (\"Id\", \"AdId\", \"CategoryId\" )" +
+                                                                    "VALUES( @id, @adGuid, @categoryId );";
+
+                                    createAdCategoryCmd.Parameters.AddWithValue("id", adCategoryGuid);
+                                    createAdCategoryCmd.Parameters.AddWithValue("adGuid", adGuid);
+                                    createAdCategoryCmd.Parameters.AddWithValue("categoryId", catId);
+
+                                    categoryRowsAffected += createAdCategoryCmd.ExecuteNonQuery();
+                                }
+
+                                if (adsRowsAffected > 0)
+                                {
+                                    return Request.CreateResponse(HttpStatusCode.OK, "OK");
+                                }
+                                else if (adsRowsAffected <= 0)
+                                {
+                                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed to insert Ad");
+                                }
+                                else if (categoryRowsAffected > 0)
+                                {
+                                    return Request.CreateResponse(HttpStatusCode.OK, "OK");
+                                }
+                                else
+                                {
+                                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed to insert AdCategory");
+                                }
+                            };
+
+                        };
+                    }
                 }
             }
             catch (Exception e)
@@ -139,7 +198,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
         }
 
-        public HttpResponseMessage Put(Guid id, [FromBody] AdRequestModel request)
+        public HttpResponseMessage Put(Guid id, AdRequestModel request)
         {
 
             AdResponseModel ad;
