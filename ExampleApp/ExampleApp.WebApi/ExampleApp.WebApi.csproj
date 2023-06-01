@@ -473,6 +473,19 @@
     <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExampleApp.Model\ExampleApp.Model.csproj">
+      <Project>{2e8717ec-4419-4a45-8a6a-1610ef60569e}</Project>
+      <Name>ExampleApp.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ExampleApp.Service\ExampleApp.Service.csproj">
+      <Project>{4052db82-7ab7-4238-945a-1c32cc362aaa}</Project>
+      <Name>ExampleApp.Service</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
