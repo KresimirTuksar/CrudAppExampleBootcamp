@@ -145,7 +145,105 @@ namespace ExampleApp.Repository
                         }
                         return false;
                     };
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
+        public bool EditAd(AdModel request)
+        {
+            try
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    using (NpgsqlCommand selectCmd = new NpgsqlCommand())
+                    {
+                        selectCmd.Connection = conn;
+                        selectCmd.CommandText = "SELECT * FROM \"Ads\" WHERE \"Id\" = @adGuid";
+
+                        selectCmd.Parameters.AddWithValue("adGuid", request.Id);
+
+
+                        using (NpgsqlDataReader reader = selectCmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                AdModel ad = new AdModel()
+                                {
+                                    Id = Guid.Parse(reader["Id"].ToString()),
+                                    Content = reader["Content"].ToString(),
+                                };
+
+                                reader.Close();
+
+                                if (ad.Content != request.Content)
+                                {
+                                    
+                                    using (NpgsqlCommand updateCmd = new NpgsqlCommand())
+                                    {
+                                        updateCmd.Connection = conn;
+
+                                        updateCmd.CommandText = "UPDATE \"Ads\" SET \"Content\" = @content, \"UpdatedAt\" = @updatedAt WHERE \"Id\" = @adGuid";
+
+                                        updateCmd.Parameters.AddWithValue("adGuid", request.Id);
+                                        updateCmd.Parameters.AddWithValue("content", request.Content);
+                                        updateCmd.Parameters.AddWithValue("updatedAt", request.UpdatedAt);
+
+
+                                        int rowsAffected = updateCmd.ExecuteNonQuery();
+
+                                        if (rowsAffected > 0)
+                                        {
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                }
+                                else
+                                {
+                                    //return Request.CreateResponse(HttpStatusCode.NoContent, "Nothing to do"); //needs to be handled in another way
+                                    return true;
+                                }
+                            }
+                            //return Request.CreateResponse(HttpStatusCode.NotFound, "Ad Not Found"); // needs to be handled in another way
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+        }
+        public bool DeleteAd(Guid id) {
+            try
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    NpgsqlCommand command = new NpgsqlCommand();
+
+                    command.Connection = conn;
+
+                    command.CommandText = "DELETE FROM \"Ads\" WHERE \"Id\" = @adId";
+
+                    command.Parameters.AddWithValue("adId", id);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        return true;
+                    }
+                    return false;
                 }
             }
             catch (Exception e)
@@ -154,11 +252,7 @@ namespace ExampleApp.Repository
                 throw e;
             }
 
-
-            return true;
         }
-        public void EditAd() { }
-        public void DeleteAd() { }
 
     }
 }

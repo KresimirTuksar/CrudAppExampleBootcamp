@@ -10,7 +10,7 @@ namespace ExampleApp.Service.common
         void GetAllAdsCategories();
         AdModel GetAdById(Guid id);
         bool CreateAd(AdModel request);
-        void EditAd();
-        void DeleteAd();
+        bool EditAd(AdModel request, Guid id);
+        bool DeleteAd(Guid id);
     }
 }

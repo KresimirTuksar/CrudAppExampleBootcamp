@@ -28,10 +28,21 @@ namespace ExampleApp.Service
             request.Id = Guid.NewGuid();
 
             bool response = Repository.CreateAd(request);
-            return true;
+            return response;
         }
-        public void EditAd() { }
-        public void DeleteAd() { }
+        public bool EditAd(AdModel request, Guid id)
+        {
+            request.Id = id;
+            request.UpdatedAt = DateTime.Now;
+            bool response = Repository.EditAd(request);
+
+            return response;
+        }
+        public bool DeleteAd(Guid id)
+        {
+            bool response = Repository.DeleteAd(id);
+            return response;
+        }
 
     }
 }

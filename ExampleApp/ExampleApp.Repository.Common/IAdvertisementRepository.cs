@@ -13,8 +13,8 @@ namespace ExampleApp.Repository.Common
         void GetAllAdsCategories();
         AdModel GetAdById(Guid id);
         bool CreateAd(AdModel request);
-        void EditAd();
-        void DeleteAd();
+        bool EditAd(AdModel request);
+        bool DeleteAd(Guid id);
 
     }
 }

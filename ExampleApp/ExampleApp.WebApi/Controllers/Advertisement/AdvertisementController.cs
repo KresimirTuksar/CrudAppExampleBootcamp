@@ -141,6 +141,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                 Content = request.Content,
             };
 
+
             bool response = Service.CreateAd(model);
 
             if (response)
@@ -148,91 +149,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                 return Request.CreateResponse(HttpStatusCode.OK, "OK");
 
             }
-            return Request.CreateResponse(HttpStatusCode.OK, "OK");
-
-            //Guid adId = Guid.NewGuid();
-            //List<int> categoriesIds = new List<int>();
-            //try
-            //{
-            //    using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
-            //    {
-            //        conn.Open();
-            //        using (NpgsqlCommand selectCatCmd = new NpgsqlCommand())
-            //        {
-            //            foreach (var cat in request.Categories)
-            //            {
-            //                selectCatCmd.Connection = conn;
-            //                selectCatCmd.CommandText = "SELECT \"Id\" FROM \"Category\" WHERE \"Name\" = @category";
-            //                selectCatCmd.Parameters.AddWithValue("category", cat);
-
-            //                using (NpgsqlDataReader reader = selectCatCmd.ExecuteReader())
-            //                {
-            //                    if (reader.Read())
-            //                    {
-            //                        categoriesIds.Add(reader.GetInt32(0));
-            //                    }
-            //                    reader.Close();
-            //                }
-            //            }
-            //            using (NpgsqlCommand createAdCmd = new NpgsqlCommand())
-            //            {
-            //                createAdCmd.Connection = conn;
-            //                createAdCmd.CommandText = "INSERT INTO \"Ads\" ( \"Id\", \"UserId\", \"Content\")" +
-            //                                                "VALUES( @adGuid, @UserId, @Content);";
-
-            //                createAdCmd.Parameters.AddWithValue("adGuid", adId);
-            //                createAdCmd.Parameters.AddWithValue("userId", request.UserId);
-            //                createAdCmd.Parameters.AddWithValue("content", request.Content);
-
-
-
-            //                int adsRowsAffected = createAdCmd.ExecuteNonQuery();
-
-            //                using (NpgsqlCommand createAdCategoryCmd = new NpgsqlCommand())
-            //                {
-            //                    int categoryRowsAffected = 0;
-            //                    createAdCategoryCmd.Connection = conn;
-            //                    foreach (var catId in categoriesIds)
-            //                    {
-            //                        Guid adCategoryGuid = Guid.NewGuid();
-            //                        createAdCategoryCmd.CommandText = "INSERT INTO \"AdCategory\" (\"Id\", \"AdId\", \"CategoryId\" )" +
-            //                                                        "VALUES( @id, @adGuid, @categoryId );";
-
-            //                        createAdCategoryCmd.Parameters.AddWithValue("id", adCategoryGuid);
-            //                        createAdCategoryCmd.Parameters.AddWithValue("adGuid", adId);
-            //                        createAdCategoryCmd.Parameters.AddWithValue("categoryId", catId);
-
-            //                        categoryRowsAffected += createAdCategoryCmd.ExecuteNonQuery();
-            //                    }
-
-            //                    if (adsRowsAffected > 0)
-            //                    {
-            //                        return Request.CreateResponse(HttpStatusCode.OK, "OK");
-            //                    }
-            //                    else if (adsRowsAffected <= 0)
-            //                    {
-            //                        return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed to insert Ad");
-            //                    }
-            //                    else if (categoryRowsAffected > 0)
-            //                    {
-            //                        return Request.CreateResponse(HttpStatusCode.OK, "OK");
-            //                    }
-            //                    else
-            //                    {
-            //                        return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed to insert AdCategory");
-            //                    }
-            //                };
-
-            //            };
-            //        }
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-
-            //    throw e;
-            //}
-
+            return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed");
         }
 
         [HttpPut]
@@ -243,109 +160,33 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             AdResponseModel ad;
             DateTime now = DateTime.Now;
 
-            try
+            AdModel model = new AdModel()
             {
-                using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    using (NpgsqlCommand selectCmd = new NpgsqlCommand())
-                    {
-                        selectCmd.Connection = conn;
-                        selectCmd.CommandText = "SELECT * FROM \"Ads\" WHERE \"Id\" = @adGuid";
-
-                        selectCmd.Parameters.AddWithValue("adGuid", id);
+                Content = request.Content,
+            };
 
 
-                        using (NpgsqlDataReader reader = selectCmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                ad = new AdResponseModel()
-                                {
-                                    Id = reader["Id"].ToString(),
-                                    UserId = reader["UserId"].ToString(),
-                                    Content = reader["Content"].ToString(),
-                                };
+            bool response = Service.EditAd(model, id);
 
-
-                                if (ad.Content != request.Content)
-                                {
-                                    reader.Close();
-
-                                    using (NpgsqlCommand updateCmd = new NpgsqlCommand())
-                                    {
-                                        updateCmd.Connection = conn;
-
-                                        updateCmd.CommandText = "UPDATE \"Ads\" SET \"Content\" = @content, \"UpdatedAt\" = @updatedAt WHERE \"Id\" = @adGuid";
-
-                                        updateCmd.Parameters.AddWithValue("adGuid", id);
-                                        updateCmd.Parameters.AddWithValue("content", request.Content);
-                                        updateCmd.Parameters.AddWithValue("updatedAt", now);
-
-
-                                        int rowsAffected = updateCmd.ExecuteNonQuery();
-
-                                        if (rowsAffected > 0)
-                                        {
-                                            return Request.CreateResponse(HttpStatusCode.NoContent, "Updated");
-
-                                        }
-                                        return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed to update");
-
-                                    }
-                                }
-                                else
-                                {
-                                    return Request.CreateResponse(HttpStatusCode.NoContent, "Nothing to do");
-                                }
-                            }
-                            return Request.CreateResponse(HttpStatusCode.NotFound, "Ad Not Found");
-
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
+            if (response)
             {
-
-                throw e;
+                return Request.CreateResponse(HttpStatusCode.NoContent);
             }
+            return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed");
         }
 
         [HttpDelete]
         [Route("delete")]
         public HttpResponseMessage Delete(Guid id)
         {
-            try
+            bool response = Service.DeleteAd(id);
+
+            if (response)
             {
-                using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    NpgsqlCommand command = new NpgsqlCommand();
-
-                    command.Connection = conn;
-
-                    command.CommandText = "DELETE FROM \"Ads\" WHERE \"Id\" = @adId";
-
-                    command.Parameters.AddWithValue("adId", id);
-
-                    int rowsAffected = command.ExecuteNonQuery();
-
-                    if (rowsAffected > 0)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NoContent, "Deleted");
-                    }
-
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "Ad Not Found");
-                }
+                return Request.CreateResponse(HttpStatusCode.NoContent);
             }
-            catch (Exception e)
-            {
+            return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed");
 
-                throw e;
-            }
         }
     }
 }
