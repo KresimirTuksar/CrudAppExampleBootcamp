@@ -4,43 +4,43 @@ using ExampleApp.Repository;
 using ExampleApp.Service.common;
 using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
+using System.Threading.Tasks;
 
 namespace ExampleApp.Service
 {
     public class AdvertisementService : IAdvertisementService
     {
         public AdvertisementRepository Repository { get; set; } = new AdvertisementRepository();
-        public List<AdModel> GetAllAds()
+        public async Task<List<AdModel>> GetAllAdsAsync()
         {
-            List<AdModel> result = Repository.GetAllAds();
+            List<AdModel> result = await Repository.GetAllAdsAsync();
             return result;
         }
-        public void GetAllAdsCategories() { }
-        public AdModel GetAdById(Guid id)
+        public void GetAllAdsCategoriesAsync() { }
+        public async Task<AdModel> GetAdByIdAsync(Guid id)
         {
-            AdModel result = Repository.GetAdById(id);
+            AdModel result = await Repository.GetAdByIdAsync(id);
             return result;
         }
-        public bool CreateAd(AdModel request)
+        public async Task<bool> CreateAdAsync(AdModel request)
         {
             //generate guid
             request.Id = Guid.NewGuid();
 
-            bool response = Repository.CreateAd(request);
+            bool response = await Repository.CreateAdAsync(request);
             return response;
         }
-        public bool EditAd(AdModel request, Guid id)
+        public async Task<bool> EditAdAsync(AdModel request, Guid id)
         {
             request.Id = id;
             request.UpdatedAt = DateTime.Now;
-            bool response = Repository.EditAd(request);
+            bool response = await Repository.EditAdAsync(request);
 
             return response;
         }
-        public bool DeleteAd(Guid id)
+        public async Task<bool> DeleteAdAsync(Guid id)
         {
-            bool response = Repository.DeleteAd(id);
+            bool response = await Repository.DeleteAdAsync(id);
             return response;
         }
 

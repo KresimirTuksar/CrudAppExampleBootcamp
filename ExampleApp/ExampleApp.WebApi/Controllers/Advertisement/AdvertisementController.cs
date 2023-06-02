@@ -1,19 +1,15 @@
 ﻿using ExampleApp.Model;
 using ExampleApp.Service;
 using ExampleApp.WebApi.Requests.Advertisement;
-using ExampleApp.WebApi.Responses;
 using ExampleApp.WebApi.Responses.Advertisement;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web.Http;
-using System.Xml.Linq;
 
 namespace ExampleApp.WebApi.Controllers.Advertisement
 {
@@ -29,102 +25,87 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
         [HttpGet]
         [Route("getall")]
 
-        public HttpResponseMessage Get()
+        public async Task<HttpResponseMessage> Get()
         {
-            List<AdModel> response = Service.GetAllAds();
-            List<AdResponseModel> result = new List<AdResponseModel>();
+            List<AdModel> response = await Service.GetAllAdsAsync();
+            List<AdResponseModel> result;
 
             if (response.Count() == 0)
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
             }
 
-            //mapping
-            foreach (var item in response)
-            {
-                result.Add(
-                    new AdResponseModel()
-                    {
-                        Id = item.Id.ToString(),
-                        UserId = item.UserId.ToString(),
-                        Content = item.Content,
-                        CreatedAt = item.CreatedAt,
-                        UpdatedAt = item.UpdatedAt,
-                    });
-            }
+            result = MapToResult(response);
 
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
-        [HttpGet]
-        [Route("getjoined")]
+        //[HttpGet]
+        //[Route("getjoined")]
 
-        public HttpResponseMessage GetJoined()
-        {
-            List<AdModel> response = Service.GetAllAds();
+        //public HttpResponseMessage GetJoined()
+        //{
+        //    List<AdModel> response = Service.GetAllAdsCategories();
 
-            List<AdJoinedResponseModel> result = new List<AdJoinedResponseModel>();
+        //    List<AdJoinedResponseModel> result = new List<AdJoinedResponseModel>();
 
-            try
-            {
-                using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
-                {
-                    conn.Open();
-                    NpgsqlCommand cmd = new NpgsqlCommand();
+        //    try
+        //    {
+        //        using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
+        //        {
+        //            conn.Open();
+        //            NpgsqlCommand cmd = new NpgsqlCommand();
 
-                    cmd.Connection = conn;
-                    //cmd.CommandText = $"SELECT * FROM \"Ads\"";
-                    cmd.CommandText = "SELECT \"Ads.Id\", \"Ads.Content\", \"Category.Name\" " +
-                                    "FROM \"Ads\" " +
-                                    "INNER JOIN \"AdCategory\" ON \"AdCategory.AdId\" = \"Ads.Id\" " +
-                                    "INNER JOIN \"Category\" ON \"AdCategory.CategoryId\" = \"Category.Id\" ";
-                    NpgsqlDataReader reader = cmd.ExecuteReader();
+        //            cmd.Connection = conn;
+        //            //cmd.CommandText = $"SELECT * FROM \"Ads\"";
+        //            cmd.CommandText = "SELECT \"Ads.Id\", \"Ads.Content\", \"Category.Name\" " +
+        //                            "FROM \"Ads\" " +
+        //                            "INNER JOIN \"AdCategory\" ON \"AdCategory.AdId\" = \"Ads.Id\" " +
+        //                            "INNER JOIN \"Category\" ON \"AdCategory.CategoryId\" = \"Category.Id\" ";
+        //            NpgsqlDataReader reader = cmd.ExecuteReader();
 
-                    while (reader.Read())
-                    {
-                        result.Add(new AdJoinedResponseModel()
-                        {
-                            Id = reader["Id"].ToString(),
-                            Content = reader["Content"].ToString(),
-                            Category = reader["Category"].ToString(),
-                        });
-                    }
-                    if (result.Count() == 0)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
+        //            while (reader.Read())
+        //            {
+        //                result.Add(new AdJoinedResponseModel()
+        //                {
+        //                    Id = reader["Id"].ToString(),
+        //                    Content = reader["Content"].ToString(),
+        //                    Category = reader["Category"].ToString(),
+        //                });
+        //            }
+        //            if (result.Count() == 0)
+        //            {
+        //                return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
 
-                    }
-                    return Request.CreateResponse(HttpStatusCode.OK, result);
-                }
-            }
-            catch (Exception e)
-            {
+        //            }
+        //            return Request.CreateResponse(HttpStatusCode.OK, result);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
 
-                throw e;
-            }
-        }
+        //        throw e;
+        //    }
+        //}
 
 
 
         [HttpGet]
         [Route("getbyid")]
 
-        public HttpResponseMessage Get(Guid id)
+        public async Task<HttpResponseMessage> Get(Guid id)
         {
-            AdModel response = Service.GetAdById(id);
+            //AdModel response = Service.GetAdById(id);
             AdResponseModel result;
-            if (response == null)
+            List<AdModel> response = new List<AdModel>() { await Service.GetAdByIdAsync(id) };
+
+            if (response.Count() == 0)
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
             }
-            result = new AdResponseModel()
-            {
-                Id = response.Id.ToString(),
-                UserId = response.UserId.ToString(),
-                Content = response.Content,
-                CreatedAt = response.CreatedAt,
-                UpdatedAt = response.UpdatedAt,
-            };
+
+            result = MapToResult(response).FirstOrDefault();
+
             return Request.CreateResponse(HttpStatusCode.OK, result);
 
         }
@@ -132,7 +113,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
         [HttpPost]
         [Route("create")]
-        public HttpResponseMessage Post(AdRequestModel request)
+        public  async Task<HttpResponseMessage> Post(AdRequestModel request)
         {
             //map from rest model
             AdModel model = new AdModel()
@@ -142,7 +123,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             };
 
 
-            bool response = Service.CreateAd(model);
+            bool response = await Service.CreateAdAsync(model);
 
             if (response)
             {
@@ -154,7 +135,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
         [HttpPut]
         [Route("edit")]
-        public HttpResponseMessage Put(Guid id, AdRequestModel request)
+        public async Task<HttpResponseMessage> Put(Guid id, AdRequestModel request)
         {
 
             AdResponseModel ad;
@@ -166,7 +147,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             };
 
 
-            bool response = Service.EditAd(model, id);
+            bool response =  await Service.EditAdAsync(model, id);
 
             if (response)
             {
@@ -177,9 +158,9 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
         [HttpDelete]
         [Route("delete")]
-        public HttpResponseMessage Delete(Guid id)
+        public async Task<HttpResponseMessage> Delete(Guid id)
         {
-            bool response = Service.DeleteAd(id);
+            bool response = await Service.DeleteAdAsync(id);
 
             if (response)
             {
@@ -187,6 +168,25 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             }
             return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed");
 
+        }
+
+        //helper methods
+        List<AdResponseModel> MapToResult(List<AdModel> models)
+        {
+            List<AdResponseModel> response = new List<AdResponseModel>();
+            foreach (var item in models)
+            {
+                response.Add(
+                    new AdResponseModel()
+                    {
+                        Id = item.Id.ToString(),
+                        UserId = item.UserId.ToString(),
+                        Content = item.Content,
+                        CreatedAt = item.CreatedAt,
+                        UpdatedAt = item.UpdatedAt,
+                    });
+            }
+            return response;
         }
     }
 }

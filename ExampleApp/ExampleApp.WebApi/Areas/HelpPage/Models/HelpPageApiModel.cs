@@ -1,8 +1,8 @@
+using ExampleApp.WebApi.Areas.HelpPage.ModelDescriptions;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Web.Http.Description;
-using ExampleApp.WebApi.Areas.HelpPage.ModelDescriptions;
 
 namespace ExampleApp.WebApi.Areas.HelpPage.Models
 {

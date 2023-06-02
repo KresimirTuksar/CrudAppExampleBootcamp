@@ -1,20 +1,17 @@
 ﻿using ExampleApp.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ExampleApp.Repository.Common
 {
     public interface IAdvertisementRepository
     {
-        List<AdModel> GetAllAds();
-        void GetAllAdsCategories();
-        AdModel GetAdById(Guid id);
-        bool CreateAd(AdModel request);
-        bool EditAd(AdModel request);
-        bool DeleteAd(Guid id);
-
+        Task<List<AdModel>> GetAllAdsAsync();
+        void GetAllAdsCategoriesAsync();
+        Task<AdModel> GetAdByIdAsync(Guid id);
+        Task<bool> CreateAdAsync(AdModel request);
+        Task<bool> EditAdAsync(AdModel request);
+        Task<bool> DeleteAdAsync(Guid id);
     }
 }

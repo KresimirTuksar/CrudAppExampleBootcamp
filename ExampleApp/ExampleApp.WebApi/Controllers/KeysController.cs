@@ -1,14 +1,10 @@
 ﻿using ExampleApp.WebApi.Models;
 using ExampleApp.WebApi.Requests;
 using ExampleApp.WebApi.Responses;
-using Microsoft.Ajax.Utilities;
-using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web;
 using System.Web.Http;
 
 namespace ExampleApp.WebApi.Controllers
@@ -61,7 +57,7 @@ namespace ExampleApp.WebApi.Controllers
 
             }
             //maping
-            KeyResponseModel response = new KeyResponseModel() {  Name = query.Name, Owner = query.Owner };
+            KeyResponseModel response = new KeyResponseModel() { Name = query.Name, Owner = query.Owner };
 
             return Request.CreateResponse(HttpStatusCode.OK, response);
         }
