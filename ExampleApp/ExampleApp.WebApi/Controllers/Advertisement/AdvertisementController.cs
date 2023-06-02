@@ -1,5 +1,6 @@
 ﻿using ExampleApp.Model;
 using ExampleApp.Service;
+using ExampleApp.WebApi.Helpers;
 using ExampleApp.WebApi.Requests.Advertisement;
 using ExampleApp.WebApi.Responses.Advertisement;
 using Npgsql;
@@ -35,7 +36,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                 return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
             }
 
-            result = MapToResult(response);
+            result = HelpersGeneral.MapToResult(response);
 
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
@@ -104,7 +105,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                 return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
             }
 
-            result = MapToResult(response).FirstOrDefault();
+            result = HelpersGeneral.MapToResult(response).FirstOrDefault();
 
             return Request.CreateResponse(HttpStatusCode.OK, result);
 
@@ -167,26 +168,6 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
                 return Request.CreateResponse(HttpStatusCode.NoContent);
             }
             return Request.CreateResponse(HttpStatusCode.BadRequest, "Failed");
-
-        }
-
-        //helper methods
-        List<AdResponseModel> MapToResult(List<AdModel> models)
-        {
-            List<AdResponseModel> response = new List<AdResponseModel>();
-            foreach (var item in models)
-            {
-                response.Add(
-                    new AdResponseModel()
-                    {
-                        Id = item.Id.ToString(),
-                        UserId = item.UserId.ToString(),
-                        Content = item.Content,
-                        CreatedAt = item.CreatedAt,
-                        UpdatedAt = item.UpdatedAt,
-                    });
-            }
-            return response;
         }
     }
 }

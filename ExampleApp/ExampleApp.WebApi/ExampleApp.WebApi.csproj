@@ -209,6 +209,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\HelpersGeneral.cs" />
     <Compile Include="Interfaces\Ikey.cs" />
     <Compile Include="Models\Key.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
