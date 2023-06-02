@@ -96,3 +96,11 @@ with new_ad as (
 insert into "AdCategory" ("Id", "AdId", "CategoryId")
 select (uuid_generate_v4()), "Id", 1
 from new_ad;
+
+select "Ads"."Id", "Ads"."Content", "Category"."Name"
+from "Ads"
+group by "Ads"."Id" 
+inner join "AdCategory"
+on "AdCategory"."AdId" = "Ads"."Id"
+inner join "Category"
+on "Category"."Id" = "AdCategory"."CategoryId" 
