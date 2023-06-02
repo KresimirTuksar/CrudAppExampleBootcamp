@@ -1,16 +1,17 @@
 ﻿using ExampleApp.Model;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ExampleApp.Service.common
 {
     public interface IAdvertisementService
     {
-        List<AdModel> GetAllAds();
-        void GetAllAdsCategories();
-        AdModel GetAdById(Guid id);
-        bool CreateAd(AdModel request);
-        bool EditAd(AdModel request, Guid id);
-        bool DeleteAd(Guid id);
+        Task<List<AdModel>> GetAllAdsAsync();
+        void GetAllAdsCategoriesAsync();
+        Task<AdModel> GetAdByIdAsync(Guid id);
+        Task<bool> CreateAdAsync(AdModel request);
+        Task<bool> EditAdAsync(AdModel request, Guid id);
+        Task<bool> DeleteAdAsync(Guid id);
     }
 }

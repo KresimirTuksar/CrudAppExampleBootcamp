@@ -4,8 +4,6 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ExampleApp.Repository
@@ -14,7 +12,7 @@ namespace ExampleApp.Repository
     {
         public static string connectionString = "Server=localhost;Port=5432;User Id=postgres;Password=FapMash1na;Database=Advertisement;";
 
-        public List<AdModel> GetAllAds()
+        public async Task<List<AdModel>> GetAllAdsAsync()
         {
             List<AdModel> result = new List<AdModel>();
             try
@@ -26,7 +24,7 @@ namespace ExampleApp.Repository
 
                     cmd.Connection = conn;
                     cmd.CommandText = $"SELECT * FROM \"Ads\"";
-                    NpgsqlDataReader reader = cmd.ExecuteReader();
+                    NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
 
                     while (reader.Read())
                     {
@@ -67,9 +65,9 @@ namespace ExampleApp.Repository
 
         }
 
-        public void GetAllAdsCategories() { }
+        public void GetAllAdsCategoriesAsync() { }
 
-        public AdModel GetAdById(Guid id)
+        public async Task<AdModel> GetAdByIdAsync(Guid id)
         {
 
             AdModel result = new AdModel();
@@ -85,7 +83,7 @@ namespace ExampleApp.Repository
 
                     cmd.Parameters.AddWithValue("adGuid", id);
 
-                    NpgsqlDataReader reader = cmd.ExecuteReader();
+                    NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
 
                     while (reader.Read())
                     {
@@ -120,7 +118,7 @@ namespace ExampleApp.Repository
                 throw e;
             }
         }
-        public bool CreateAd(AdModel request)
+        public async Task<bool> CreateAdAsync(AdModel request)
         {
             try
             {
@@ -137,7 +135,7 @@ namespace ExampleApp.Repository
                         createAdCmd.Parameters.AddWithValue("userId", request.UserId);
                         createAdCmd.Parameters.AddWithValue("content", request.Content);
 
-                        int adsRowsAffected = createAdCmd.ExecuteNonQuery();
+                        int adsRowsAffected = await createAdCmd.ExecuteNonQueryAsync();
 
                         if (adsRowsAffected > 0)
                         {
@@ -153,7 +151,7 @@ namespace ExampleApp.Repository
             }
         }
 
-        public bool EditAd(AdModel request)
+        public async Task<bool> EditAdAsync(AdModel request)
         {
             try
             {
@@ -169,7 +167,7 @@ namespace ExampleApp.Repository
                         selectCmd.Parameters.AddWithValue("adGuid", request.Id);
 
 
-                        using (NpgsqlDataReader reader = selectCmd.ExecuteReader())
+                        using (NpgsqlDataReader reader = await selectCmd.ExecuteReaderAsync())
                         {
                             if (reader.Read())
                             {
@@ -183,7 +181,7 @@ namespace ExampleApp.Repository
 
                                 if (ad.Content != request.Content)
                                 {
-                                    
+
                                     using (NpgsqlCommand updateCmd = new NpgsqlCommand())
                                     {
                                         updateCmd.Connection = conn;
@@ -195,7 +193,7 @@ namespace ExampleApp.Repository
                                         updateCmd.Parameters.AddWithValue("updatedAt", request.UpdatedAt);
 
 
-                                        int rowsAffected = updateCmd.ExecuteNonQuery();
+                                        int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
 
                                         if (rowsAffected > 0)
                                         {
@@ -222,7 +220,8 @@ namespace ExampleApp.Repository
                 throw e;
             }
         }
-        public bool DeleteAd(Guid id) {
+        public async Task<bool> DeleteAdAsync(Guid id)
+        {
             try
             {
                 using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
@@ -237,7 +236,7 @@ namespace ExampleApp.Repository
 
                     command.Parameters.AddWithValue("adId", id);
 
-                    int rowsAffected = command.ExecuteNonQuery();
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
 
                     if (rowsAffected > 0)
                     {

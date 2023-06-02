@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
-
-namespace ExampleApp.WebApi.Responses
+﻿namespace ExampleApp.WebApi.Responses
 {
     public class UserResponseModel
     {
