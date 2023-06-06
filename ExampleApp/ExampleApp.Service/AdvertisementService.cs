@@ -1,4 +1,5 @@
 ﻿
+using ExampleApp.Common;
 using ExampleApp.Model;
 using ExampleApp.Repository;
 using ExampleApp.Service.common;
@@ -11,9 +12,10 @@ namespace ExampleApp.Service
     public class AdvertisementService : IAdvertisementService
     {
         public AdvertisementRepository Repository { get; set; } = new AdvertisementRepository();
-        public async Task<List<AdModel>> GetAllAdsAsync()
+        public async Task<PagingModel<AdModel>> GetAllAdsAsync(PagingModel<AdModel> paging, SortingModel sorting)
         {
-            List<AdModel> result = await Repository.GetAllAdsAsync();
+
+            PagingModel<AdModel> result = await Repository.GetAllAdsAsync(paging, sorting);
             return result;
         }
         public void GetAllAdsCategoriesAsync() { }

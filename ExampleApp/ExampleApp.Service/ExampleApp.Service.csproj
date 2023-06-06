@@ -45,6 +45,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExampleApp.Common\ExampleApp.Common.csproj">
+      <Project>{abaad735-346d-48bc-b596-5d1c7ab0687c}</Project>
+      <Name>ExampleApp.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ExampleApp.Model\ExampleApp.Model.csproj">
       <Project>{2e8717ec-4419-4a45-8a6a-1610ef60569e}</Project>
       <Name>ExampleApp.Model</Name>
@@ -57,6 +61,9 @@
       <Project>{2adc7442-7f05-4af3-bfab-901297f8ed3b}</Project>
       <Name>ExampleApp.Service.common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

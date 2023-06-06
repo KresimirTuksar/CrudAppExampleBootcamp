@@ -1,4 +1,5 @@
-﻿using ExampleApp.Model;
+﻿using ExampleApp.Common;
+using ExampleApp.Model;
 using ExampleApp.Service;
 using ExampleApp.WebApi.Helpers;
 using ExampleApp.WebApi.Requests.Advertisement;
@@ -6,11 +7,14 @@ using ExampleApp.WebApi.Responses.Advertisement;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.UI;
 
 namespace ExampleApp.WebApi.Controllers.Advertisement
 {
@@ -26,17 +30,26 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
         [HttpGet]
         [Route("getall")]
 
-        public async Task<HttpResponseMessage> Get()
+        public async Task<HttpResponseMessage> Get(int currentPage, int pageSize, string sortBy, bool sortingDesc)
         {
-            List<AdModel> response = await Service.GetAllAdsAsync();
-            List<AdResponseModel> result;
+            PagingModel<AdModel> paging = new PagingModel<AdModel>() { CurrentPage = currentPage, PageSize = pageSize };
+            SortingModel sorting = new SortingModel() { SortBy = sortBy, IsDescending = sortingDesc };
 
-            if (response.Count() == 0)
+            PagingModel<AdModel> response = await Service.GetAllAdsAsync(paging, sorting);
+
+            if (response.Results.Count() == 0)
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
             }
 
-            result = HelpersGeneral.MapToResult(response);
+            PagingModel<AdResponseModel> result = new PagingModel<AdResponseModel>()
+            {
+                CurrentPage = response.CurrentPage,
+                PageSize = response.PageSize,
+                TotalCount = response.TotalCount,
+                TotalPages = response.TotalPages,
+                Results = HelpersGeneral.MapToResult(response.Results)
+            };
 
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
@@ -114,7 +127,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
 
         [HttpPost]
         [Route("create")]
-        public  async Task<HttpResponseMessage> Post(AdRequestModel request)
+        public async Task<HttpResponseMessage> Post(AdRequestModel request)
         {
             //map from rest model
             AdModel model = new AdModel()
@@ -148,7 +161,7 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             };
 
 
-            bool response =  await Service.EditAdAsync(model, id);
+            bool response = await Service.EditAdAsync(model, id);
 
             if (response)
             {

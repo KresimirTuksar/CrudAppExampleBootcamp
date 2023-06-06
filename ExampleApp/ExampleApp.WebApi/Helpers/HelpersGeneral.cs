@@ -1,4 +1,5 @@
-﻿using ExampleApp.Model;
+﻿using ExampleApp.Common;
+using ExampleApp.Model;
 using ExampleApp.WebApi.Responses.Advertisement;
 using System.Collections.Generic;
 
