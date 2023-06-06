@@ -42,7 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GeneralHelpers.cs" />
+    <Compile Include="PagingModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SortingModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

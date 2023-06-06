@@ -478,6 +478,10 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExampleApp.Common\ExampleApp.Common.csproj">
+      <Project>{abaad735-346d-48bc-b596-5d1c7ab0687c}</Project>
+      <Name>ExampleApp.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ExampleApp.Model\ExampleApp.Model.csproj">
       <Project>{2e8717ec-4419-4a45-8a6a-1610ef60569e}</Project>
       <Name>ExampleApp.Model</Name>
