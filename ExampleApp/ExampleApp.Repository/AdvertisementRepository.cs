@@ -67,7 +67,7 @@ namespace ExampleApp.Repository
 
         //}
 
-        public async Task<PagingModel<AdModel>> GetAllAdsAsync(PagingModel<AdModel> paging)
+        public async Task<PagingModel<AdModel>> GetAllAdsAsync(PagingModel<AdModel> paging,  SortingModel sorting)
         {
             PagingModel<AdModel> result = paging;
 
@@ -97,14 +97,21 @@ namespace ExampleApp.Repository
                             StringBuilder queryBuilder = new StringBuilder("");
 
                             queryBuilder.Append("SELECT * FROM \"Ads\" ");
-                            queryBuilder.Append("ORDER BY \"CreatedAt\" ");
+                            queryBuilder.Append("ORDER BY @orderBy ");
+                            if (sorting.IsDescending) {
+                                queryBuilder.Append("DESC ");
+                            }
+                            else { queryBuilder.Append("ASC "); }
                             queryBuilder.Append("OFFSET @skipRows ROWS FETCH NEXT @takeRows ROWS ONLY");
 
                             resultCmd.Connection = conn;
                             resultCmd.CommandText = queryBuilder.ToString();
 
+                            resultCmd.Parameters.AddWithValue("orderBy", sorting.SortBy);
+                            //resultCmd.Parameters.AddWithValue("orderBy", string.Format(" \" " + sorting.SortBy + "\""));
                             resultCmd.Parameters.AddWithValue("skipRows", (paging.CurrentPage - 1) * paging.PageSize);
                             resultCmd.Parameters.AddWithValue("takeRows", paging.PageSize);
+
                             NpgsqlDataReader resultReader = await resultCmd.ExecuteReaderAsync();
                             while (resultReader.Read())
                             {
@@ -140,7 +147,6 @@ namespace ExampleApp.Repository
                             return result;
                         }
                     }
-
                 }
             }
             catch (Exception)

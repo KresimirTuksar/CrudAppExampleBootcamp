@@ -8,7 +8,7 @@ namespace ExampleApp.Repository.Common
 {
     public interface IAdvertisementRepository
     {
-        Task<PagingModel<AdModel>> GetAllAdsAsync(PagingModel<AdModel> paging);
+        Task<PagingModel<AdModel>> GetAllAdsAsync(PagingModel<AdModel> paging, SortingModel sorting);
         void GetAllAdsCategoriesAsync();
         Task<AdModel> GetAdByIdAsync(Guid id);
         Task<bool> CreateAdAsync(AdModel request);

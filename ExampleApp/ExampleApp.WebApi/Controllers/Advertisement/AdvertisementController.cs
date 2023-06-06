@@ -7,6 +7,7 @@ using ExampleApp.WebApi.Responses.Advertisement;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -29,11 +30,12 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
         [HttpGet]
         [Route("getall")]
 
-        public async Task<HttpResponseMessage> Get(int currentPage, int pageSize)
+        public async Task<HttpResponseMessage> Get(int currentPage, int pageSize, string sortBy, bool sortingDesc)
         {
             PagingModel<AdModel> paging = new PagingModel<AdModel>() { CurrentPage = currentPage, PageSize = pageSize };
+            SortingModel sorting = new SortingModel() { SortBy = sortBy, IsDescending = sortingDesc };
 
-            PagingModel<AdModel> response = await Service.GetAllAdsAsync(paging);
+            PagingModel<AdModel> response = await Service.GetAllAdsAsync(paging, sorting);
 
             if (response.Results.Count() == 0)
             {

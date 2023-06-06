@@ -12,10 +12,10 @@ namespace ExampleApp.Service
     public class AdvertisementService : IAdvertisementService
     {
         public AdvertisementRepository Repository { get; set; } = new AdvertisementRepository();
-        public async Task<PagingModel<AdModel>> GetAllAdsAsync(PagingModel<AdModel> paging)
+        public async Task<PagingModel<AdModel>> GetAllAdsAsync(PagingModel<AdModel> paging, SortingModel sorting)
         {
 
-            PagingModel<AdModel> result = await Repository.GetAllAdsAsync(paging);
+            PagingModel<AdModel> result = await Repository.GetAllAdsAsync(paging, sorting);
             return result;
         }
         public void GetAllAdsCategoriesAsync() { }
