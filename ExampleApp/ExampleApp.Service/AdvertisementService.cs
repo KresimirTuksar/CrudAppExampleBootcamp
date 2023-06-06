@@ -16,7 +16,10 @@ namespace ExampleApp.Service
             List<AdModel> result = await Repository.GetAllAdsAsync();
             return result;
         }
-        public void GetAllAdsCategoriesAsync() { }
+        public async Task<List<AdCategoryModel>> GetAllAdsCategoriesAsync() {
+            List<AdCategoryModel> result = await Repository.GetAllAdsCategoriesAsync();
+            return result;
+        }
         public async Task<AdModel> GetAdByIdAsync(Guid id)
         {
             AdModel result = await Repository.GetAdByIdAsync(id);

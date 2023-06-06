@@ -8,7 +8,7 @@ namespace ExampleApp.Repository.Common
     public interface IAdvertisementRepository
     {
         Task<List<AdModel>> GetAllAdsAsync();
-        void GetAllAdsCategoriesAsync();
+        Task<List<AdCategoryModel>> GetAllAdsCategoriesAsync();
         Task<AdModel> GetAdByIdAsync(Guid id);
         Task<bool> CreateAdAsync(AdModel request);
         Task<bool> EditAdAsync(AdModel request);

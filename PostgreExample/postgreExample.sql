@@ -97,9 +97,10 @@ insert into "AdCategory" ("Id", "AdId", "CategoryId")
 select (uuid_generate_v4()), "Id", 1
 from new_ad;
 
-select "Ads"."Id", "Ads"."Content", "Category"."Name"
+select "Ads"."Id", "Ads"."Content","Users"."FirstName" , "Users"."LastName", "Category"."Name"
 from "Ads"
-group by "Ads"."Id" 
+inner join "Users"
+on "Users"."Id" = "Ads"."UserId"
 inner join "AdCategory"
 on "AdCategory"."AdId" = "Ads"."Id"
 inner join "Category"

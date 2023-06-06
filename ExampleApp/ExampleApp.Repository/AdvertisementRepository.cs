@@ -4,6 +4,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace ExampleApp.Repository
@@ -65,7 +66,53 @@ namespace ExampleApp.Repository
 
         }
 
-        public void GetAllAdsCategoriesAsync() { }
+        public async Task<List<AdCategoryModel>> GetAllAdsCategoriesAsync() {
+
+            List<AdCategoryModel> result = new List<AdCategoryModel>();
+            try
+            {
+                using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
+                {
+                    conn.Open();
+                    NpgsqlCommand cmd = new NpgsqlCommand();
+
+                    cmd.Connection = conn;
+                    //cmd.CommandText = $"SELECT * FROM \"Ads\"";
+                    //cmd.CommandText = "SELECT \"Ads.Id\", \"Ads.Content\", \"Category.Name\" " +
+                    //                "FROM \"Ads\" " +
+                    //                "INNER JOIN \"AdCategory\" ON \"AdCategory.AdId\" = \"Ads.Id\" " +
+                    //                "INNER JOIN \"Category\" ON \"AdCategory.CategoryId\" = \"Category.Id\" ";
+
+                    cmd.CommandText = "select \"Ads\".\"Id\", \"Ads\".\"Content\",\"Users\".\"FirstName\" , \"Users\".\"LastName\", \"Category\".\"Name\" from \"Ads\" inner join \"Users\" on \"Users\".\"Id\" = \"Ads\".\"UserId\" inner join \"AdCategory\" on \"AdCategory\".\"AdId\" = \"Ads\".\"Id\" inner join \"Category\" on \"Category\".\"Id\" = \"AdCategory\".\"CategoryId\" ";
+                    NpgsqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        result.Add(new AdCategoryModel()
+                        {
+                            Id = Guid.Parse(reader["Id"].ToString()),
+                            UserFirstName = reader["FirstName"].ToString(),
+                            UserLastName = reader["LastName"].ToString(),
+                            Content = reader["Content"].ToString(),
+                            Category = reader["Name"].ToString(),
+                        }); ;
+                    }
+                    if (result.Count() == 0)
+                    {
+                        return new List<AdCategoryModel>();
+
+                    }
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
+
+        }
 
         public async Task<AdModel> GetAdByIdAsync(Guid id)
         {

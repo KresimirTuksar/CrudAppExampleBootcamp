@@ -8,7 +8,7 @@ namespace ExampleApp.Service.common
     public interface IAdvertisementService
     {
         Task<List<AdModel>> GetAllAdsAsync();
-        void GetAllAdsCategoriesAsync();
+        Task<List<AdCategoryModel>> GetAllAdsCategoriesAsync();
         Task<AdModel> GetAdByIdAsync(Guid id);
         Task<bool> CreateAdAsync(AdModel request);
         Task<bool> EditAdAsync(AdModel request, Guid id);

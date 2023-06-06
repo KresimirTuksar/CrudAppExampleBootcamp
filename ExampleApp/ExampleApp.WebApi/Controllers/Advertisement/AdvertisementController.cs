@@ -1,7 +1,9 @@
 ﻿using ExampleApp.Model;
 using ExampleApp.Service;
 using ExampleApp.WebApi.Helpers;
+using ExampleApp.WebApi.Models;
 using ExampleApp.WebApi.Requests.Advertisement;
+using ExampleApp.WebApi.Responses;
 using ExampleApp.WebApi.Responses.Advertisement;
 using Npgsql;
 using System;
@@ -41,71 +43,75 @@ namespace ExampleApp.WebApi.Controllers.Advertisement
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
-        [HttpGet]
-        [Route("getpaginated")]
-        public HttpResponseMessage Post()
-        {
-            if (Keys == null)
-            {
-                return Request.CreateResponse(HttpStatusCode.NotFound, "No Result");
-            }
-
-            List<Key> query = Keys.OrderBy(x => x.Id).Skip(2 * (2 - 1)).Take(2).ToList();
-            PaginatedResponseModel<List<Key>> result = new PaginatedResponseModel<List<Key>> { Results = query };
-
-            result.TotalResultCount = Keys.Count();
-            return Request.CreateResponse(HttpStatusCode.OK, result);
-
-        }
-
-
         //[HttpGet]
-        //[Route("getjoined")]
-
-        //public HttpResponseMessage GetJoined()
+        //[Route("getpaginated")]
+        //public HttpResponseMessage Post()
         //{
-        //    List<AdModel> response = Service.GetAllAdsCategories();
-
-        //    List<AdJoinedResponseModel> result = new List<AdJoinedResponseModel>();
-
-        //    try
+        //    if (Keys == null)
         //    {
-        //        using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
-        //        {
-        //            conn.Open();
-        //            NpgsqlCommand cmd = new NpgsqlCommand();
-
-        //            cmd.Connection = conn;
-        //            //cmd.CommandText = $"SELECT * FROM \"Ads\"";
-        //            cmd.CommandText = "SELECT \"Ads.Id\", \"Ads.Content\", \"Category.Name\" " +
-        //                            "FROM \"Ads\" " +
-        //                            "INNER JOIN \"AdCategory\" ON \"AdCategory.AdId\" = \"Ads.Id\" " +
-        //                            "INNER JOIN \"Category\" ON \"AdCategory.CategoryId\" = \"Category.Id\" ";
-        //            NpgsqlDataReader reader = cmd.ExecuteReader();
-
-        //            while (reader.Read())
-        //            {
-        //                result.Add(new AdJoinedResponseModel()
-        //                {
-        //                    Id = reader["Id"].ToString(),
-        //                    Content = reader["Content"].ToString(),
-        //                    Category = reader["Category"].ToString(),
-        //                });
-        //            }
-        //            if (result.Count() == 0)
-        //            {
-        //                return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
-
-        //            }
-        //            return Request.CreateResponse(HttpStatusCode.OK, result);
-        //        }
+        //        return Request.CreateResponse(HttpStatusCode.NotFound, "No Result");
         //    }
-        //    catch (Exception e)
-        //    {
 
-        //        throw e;
-        //    }
+        //    List<Key> query = Keys.OrderBy(x => x.Id).Skip(2 * (2 - 1)).Take(2).ToList();
+        //    PaginatedResponseModel<List<Key>> result = new PaginatedResponseModel<List<Key>> { Results = query };
+
+        //    result.TotalResultCount = Keys.Count();
+        //    return Request.CreateResponse(HttpStatusCode.OK, result);
+
         //}
+
+
+        [HttpGet]
+        [Route("getjoined")]
+
+        public async Task <HttpResponseMessage> GetJoined()
+        {
+            List<AdCategoryModel> response = await Service.GetAllAdsCategoriesAsync();
+
+            if (response.Count() == 0)
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, response);
+
+            //try
+            //{
+            //    using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
+            //    {
+            //        conn.Open();
+            //        NpgsqlCommand cmd = new NpgsqlCommand();
+
+            //        cmd.Connection = conn;
+            //        //cmd.CommandText = $"SELECT * FROM \"Ads\"";
+            //        cmd.CommandText = "SELECT \"Ads.Id\", \"Ads.Content\", \"Category.Name\" " +
+            //                        "FROM \"Ads\" " +
+            //                        "INNER JOIN \"AdCategory\" ON \"AdCategory.AdId\" = \"Ads.Id\" " +
+            //                        "INNER JOIN \"Category\" ON \"AdCategory.CategoryId\" = \"Category.Id\" ";
+            //        NpgsqlDataReader reader = cmd.ExecuteReader();
+
+            //        while (reader.Read())
+            //        {
+            //            result.Add(new AdJoinedResponseModel()
+            //            {
+            //                Id = reader["Id"].ToString(),
+            //                Content = reader["Content"].ToString(),
+            //                Category = reader["Category"].ToString(),
+            //            });
+            //        }
+            //        if (result.Count() == 0)
+            //        {
+            //            return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
+
+            //        }
+            //        return Request.CreateResponse(HttpStatusCode.OK, result);
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+
+            //    throw e;
+            //}
+        }
 
 
 
