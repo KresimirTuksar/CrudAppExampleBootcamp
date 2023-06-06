@@ -96,3 +96,5 @@ with new_ad as (
 insert into "AdCategory" ("Id", "AdId", "CategoryId")
 select (uuid_generate_v4()), "Id", 1
 from new_ad;
+
+SELECT * FROM "Ads" where "Content" LIKE '%date%' ORDER BY "UpdatedAt" asc OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY
